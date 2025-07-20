@@ -1,0 +1,32 @@
+name: Promote to Main
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  promote:
+    name: Promote to Main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install GitHub CLI
+        run: sudo apt-get update && sudo apt-get install gh -y
+
+      - name: Create PR from development to main
+        run: |
+          git fetch origin main
+          if git diff --quiet origin/main..HEAD; then
+            echo "No changes between development and main. Skipping PR."
+          else
+            gh pr create \
+              --base main \
+              --head development \
+              --title "Promote: development → main" \
+              --body "CI passed on development. This PR was auto-generated."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
