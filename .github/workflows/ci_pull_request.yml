@@ -1,10 +1,7 @@
-name: Circle CI
+name: Pull Request CI
 
 on:
   pull_request:
-  push:
-    branches:
-      - development
 
 jobs:
   lint:
@@ -39,29 +36,3 @@ jobs:
           go-version: "1.18"
       - name: Run make test
         run: make test
-
-  promote:
-    name: Promote to Main
-    if: github.ref == 'refs/heads/development' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install GitHub CLI
-        run: sudo apt-get update && sudo apt-get install gh -y
-
-      - name: Create PR from development to main
-        run: |
-          git fetch origin main
-          if git diff --quiet origin/main..HEAD; then
-            echo "No changes between development and main. Skipping PR."
-          else
-            gh pr create \
-              --base main \
-              --head development \
-              --title "Promote: development → main" \
-              --body "CI passed on development. This PR was auto-generated."
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
