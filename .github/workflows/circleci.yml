@@ -2,6 +2,10 @@ name: Circle CI
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
+      - development
 
 jobs:
   lint:
@@ -33,3 +37,25 @@ jobs:
           go-version: "1.18"
       - name: Run make test
         run: make test
+
+promote:
+  name: Promote to Main
+  runs-on: ubuntu-latest
+  needs:
+    - lint
+    - test
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Install GitHub CLI
+      run: sudo apt-get update && sudo apt-get install gh -y
+    - name: Create PR from development to main
+      if: ${{ success() }}
+      run: |
+        gh pr create \
+          --base main \
+          --head development \
+          --title "Promote: development → main" \
+          --body "CI passed on development. This PR was auto-generated."
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
