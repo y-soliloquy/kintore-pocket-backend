@@ -17,6 +17,7 @@ func NewRouter() http.Handler {
 	r := chi.NewRouter()
 
 	routes := []Route{
+		{Method: http.MethodGet, Path: "/healthz", Handler: handler.NewHealthzHandler().Handle},
 		{Method: http.MethodGet, Path: "/hello", Handler: handler.NewHelloHandler().Handle},
 		{Method: http.MethodGet, Path: "/goodbye", Handler: handler.NewGoodbyeHandler().Handle},
 	}
