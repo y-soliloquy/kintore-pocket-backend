@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -15,5 +16,8 @@ func NewHelloHandler() *HelloHandler {
 
 func (h *HelloHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("hello world"))
+	_, err := w.Write([]byte("hello world"))
+	if err != nil {
+		log.Printf("HelloHandler: failed to write response: %v", err)
+	}
 }

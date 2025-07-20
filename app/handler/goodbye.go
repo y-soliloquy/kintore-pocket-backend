@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -15,5 +16,8 @@ func NewGoodbyeHandler() *GoodbyeHandler {
 
 func (h *GoodbyeHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Goodbye"))
+	_, err := w.Write([]byte("Goodbye"))
+	if err != nil {
+		log.Printf("GoodbyeHandler: failed to write response: %v", err)
+	}
 }
