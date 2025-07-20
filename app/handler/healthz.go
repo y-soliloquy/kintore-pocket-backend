@@ -1,6 +1,9 @@
 package handler
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+)
 
 type HealthzHandler struct{}
 
@@ -10,5 +13,8 @@ func NewHealthzHandler() *HealthzHandler {
 
 func (h *HealthzHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("health ok"))
+	_, err := w.Write([]byte("health ok"))
+	if err != nil {
+		log.Printf("HealthzHandler: failed to write response: %v", err)
+	}
 }

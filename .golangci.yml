@@ -1,0 +1,17 @@
+run:
+  timeout: 3m
+
+linters:
+  default: all
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - staticcheck
+    - unused
+    - gofmt
+    - goimports
+
+linters-settings:
+  errcheck:
+    ignore: ''
