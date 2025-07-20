@@ -6,3 +6,7 @@ fmt:
 	@echo "🧹 Formatting Go files..."
 	@goimports -w .
 	@echo "✅ Code formatted with goimports!"
+test:
+	@echo "🧪 Running go tests..."
+	go test ./...
+	@echo "✅ Tests passed!"
