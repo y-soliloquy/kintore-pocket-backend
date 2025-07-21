@@ -5,6 +5,22 @@ import (
 	"net/http"
 )
 
+type FiveTimesFiveTemplate struct {
+	Set     int     `json:"set"`
+	Percent float64 `json:"percent"`
+	Reps    int     `json:"rep"`
+}
+
+type FiveTimesFiveMenu struct {
+	Set    int `json:"set"`
+	Weight int `json:"weight"`
+	Reps   int `json:"rep"`
+}
+
+type RequestBody struct {
+	Weight int `json:"weight"`
+}
+
 type FiveTimesFiveHandler struct{}
 
 func NewFiveTimesFiveHandler() *FiveTimesFiveHandler {
