@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 )
 
 type FiveTimesFiveTemplate struct {
@@ -29,9 +31,38 @@ func NewFiveTimesFiveHandler() *FiveTimesFiveHandler {
 
 // 一旦仮で書く
 func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	_, err := w.Write([]byte("ok"))
+	var req RequestBody
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "FiveTimesFiveHandler: Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	data, err := os.ReadFile("data/5x5.json")
 	if err != nil {
-		log.Printf("FiveTimesFiveHandler: failed to write response: %v", err)
+		http.Error(w, "FiveTimesFiveHandler: Template not found", http.StatusInternalServerError)
+		return
+	}
+
+	var template []FiveTimesFiveTemplate
+	if err := json.Unmarshal(data, &template); err != nil {
+		http.Error(w, "FiveTimesFiveHandler: Invalid template", http.StatusInternalServerError)
+		return
+	}
+
+	var menus []FiveTimesFiveMenu
+	for _, t := range template {
+		menus = append(menus, FiveTimesFiveMenu{
+			Set:    t.Set,
+			Weight: int(float64(req.Weight) * t.Percent),
+			Reps:   t.Reps,
+		})
+	}
+
+	w.Header().Set("Content-type", "application/json")
+	json.NewEncoder(w).Encode(menus)
+
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(menus); err != nil {
+		log.Printf("FiveTimesFiveHandler: failed to encode JSON: %v", err)
 	}
 }
