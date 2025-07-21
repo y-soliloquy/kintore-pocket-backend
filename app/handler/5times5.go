@@ -22,9 +22,9 @@ type FiveTimesFiveTemplate struct {
 }
 
 type FiveTimesFiveMenu struct {
-	Set    int `json:"set"`
-	Weight int `json:"weight"`
-	Reps   int `json:"reps"`
+	Set    int     `json:"set"`
+	Weight float64 `json:"weight"`
+	Reps   int     `json:"reps"`
 }
 
 type RequestBody struct {
@@ -77,7 +77,7 @@ func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		weight := CalculateWeight(float64(req.Weight) * t.Percent)
 		menus = append(menus, FiveTimesFiveMenu{
 			Set:    t.Set,
-			Weight: int(weight),
+			Weight: weight,
 			Reps:   t.Reps,
 		})
 	}
@@ -92,5 +92,6 @@ func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 // CalculateWeight トレーニングメニュー上の重さを計算する関数
 func CalculateWeight(x float64) float64 {
-	return math.Round(x/MinPlateWeight) * MinPlateWeight
+	const epsilon = 0.0001
+	return math.Round((x+epsilon)/MinPlateWeight) * MinPlateWeight
 }
