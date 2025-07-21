@@ -17,13 +17,13 @@ const MinPlateWeight float64 = 2.5
 type FiveTimesFiveTemplate struct {
 	Set     int     `json:"set"`
 	Percent float64 `json:"percent"`
-	Reps    int     `json:"rep"`
+	Reps    int     `json:"reps"`
 }
 
 type FiveTimesFiveMenu struct {
 	Set    int `json:"set"`
 	Weight int `json:"weight"`
-	Reps   int `json:"rep"`
+	Reps   int `json:"reps"`
 }
 
 type RequestBody struct {
@@ -36,6 +36,8 @@ func NewFiveTimesFiveHandler() *FiveTimesFiveHandler {
 	return &FiveTimesFiveHandler{}
 }
 
+// ゆくゆくは、メニュータイプも受け取って、このAPIだけで複数のメニューを返すようにしたい。
+// その際は名前を汎用的なものに変更する
 func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	var req RequestBody
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
