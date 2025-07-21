@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"log"
+	"math"
 	"net/http"
 	"os"
 )
@@ -51,18 +52,23 @@ func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	var menus []FiveTimesFiveMenu
 	for _, t := range template {
+		weight := CalculateWeight(float64(req.Weight)*t.Percent, 2.5)
 		menus = append(menus, FiveTimesFiveMenu{
 			Set:    t.Set,
-			Weight: int(float64(req.Weight) * t.Percent),
+			Weight: int(weight),
 			Reps:   t.Reps,
 		})
 	}
 
-	w.Header().Set("Content-type", "application/json")
-	json.NewEncoder(w).Encode(menus)
-
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+
 	if err := json.NewEncoder(w).Encode(menus); err != nil {
 		log.Printf("FiveTimesFiveHandler: failed to encode JSON: %v", err)
 	}
+}
+
+// CalculateWeight ジムのプレートは2.5kg刻みであることが一般的なので、現実的な重さを計算する関数
+func CalculateWeight(x float64, unit float64) float64 {
+	return math.Round(x/unit) * unit
 }
