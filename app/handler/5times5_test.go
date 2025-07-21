@@ -37,11 +37,11 @@ func TestFiveTimesFiveHandler_Handle(t *testing.T) {
 	}
 	defer os.Remove(path)
 
-	req := httptest.NewRequest(http.MethodPost, "/5times5", bytes.NewReader(body))
+	req := httptest.NewRequest(http.MethodPost, "/5times5?template=test_5x5.json", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	rr := httptest.NewRecorder()
 
-	handler := handler.NewFiveTimesFiveHandler(path)
+	handler := handler.NewFiveTimesFiveHandler("testdata")
 	handler.Handle(rr, req)
 
 	if rr.Code != http.StatusOK {

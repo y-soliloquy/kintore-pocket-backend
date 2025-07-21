@@ -6,6 +6,7 @@ import (
 	"math"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 // MinPlateWeight は、ジムのプレートに基づいた最小の重量刻みを定義します。
@@ -31,12 +32,12 @@ type RequestBody struct {
 }
 
 type FiveTimesFiveHandler struct {
-	TemplatePath string
+	BasePath string
 }
 
 func NewFiveTimesFiveHandler(path string) *FiveTimesFiveHandler {
 	return &FiveTimesFiveHandler{
-		TemplatePath: path,
+		BasePath: path,
 	}
 }
 
@@ -45,19 +46,28 @@ func NewFiveTimesFiveHandler(path string) *FiveTimesFiveHandler {
 func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	var req RequestBody
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		log.Println("デコードエラー:", err)
+		log.Printf("failed to decode request: %v", err)
 		http.Error(w, "FiveTimesFiveHandler: Invalid input", http.StatusBadRequest)
 		return
 	}
 
-	data, err := os.ReadFile(h.TemplatePath)
+	templateName := r.URL.Query().Get("template")
+	if templateName == "" {
+		http.Error(w, "template query parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	templatePath := filepath.Join(h.BasePath, templateName)
+	data, err := os.ReadFile(templatePath)
 	if err != nil {
-		http.Error(w, "FiveTimesFiveHandler: Template not found", http.StatusInternalServerError)
+		log.Printf("failed to read file: %v", err)
+		http.Error(w, "failed to read template", http.StatusInternalServerError)
 		return
 	}
 
 	var template []FiveTimesFiveTemplate
 	if err := json.Unmarshal(data, &template); err != nil {
+		log.Printf("failed to parse: %v", err)
 		http.Error(w, "FiveTimesFiveHandler: Invalid template", http.StatusInternalServerError)
 		return
 	}
