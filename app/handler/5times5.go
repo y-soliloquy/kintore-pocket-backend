@@ -8,6 +8,12 @@ import (
 	"os"
 )
 
+// MinPlateWeight は、ジムのプレートに基づいた最小の重量刻みを定義します。
+// 計算された重量を、使用可能なプレートに合わせて丸めるために使われます。
+// トレーニーはプレート2枚を1組として利用します。
+// 一般的な最小のプレートの重さは1.25kgです。
+const MinPlateWeight float64 = 2.5
+
 type FiveTimesFiveTemplate struct {
 	Set     int     `json:"set"`
 	Percent float64 `json:"percent"`
@@ -51,7 +57,7 @@ func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	var menus []FiveTimesFiveMenu
 	for _, t := range template {
-		weight := CalculateWeight(float64(req.Weight)*t.Percent, 2.5)
+		weight := CalculateWeight(float64(req.Weight) * t.Percent)
 		menus = append(menus, FiveTimesFiveMenu{
 			Set:    t.Set,
 			Weight: int(weight),
@@ -67,7 +73,7 @@ func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// CalculateWeight ジムのプレートは2.5kg刻みであることが一般的なので、現実的な重さを計算する関数
-func CalculateWeight(x float64, unit float64) float64 {
-	return math.Round(x/unit) * unit
+// CalculateWeight トレーニングメニュー上の重さを計算する関数
+func CalculateWeight(x float64) float64 {
+	return math.Round(x/MinPlateWeight) * MinPlateWeight
 }
