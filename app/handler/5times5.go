@@ -30,7 +30,6 @@ func NewFiveTimesFiveHandler() *FiveTimesFiveHandler {
 	return &FiveTimesFiveHandler{}
 }
 
-// 一旦仮で書く
 func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	var req RequestBody
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
