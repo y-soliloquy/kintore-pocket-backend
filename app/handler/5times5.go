@@ -43,7 +43,7 @@ func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := os.ReadFile("data/5x5.json")
+	data, err := os.ReadFile("../../data/5x5.json")
 	if err != nil {
 		http.Error(w, "FiveTimesFiveHandler: Template not found", http.StatusInternalServerError)
 		return
