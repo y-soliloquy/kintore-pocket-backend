@@ -30,10 +30,14 @@ type RequestBody struct {
 	Weight int `json:"weight"`
 }
 
-type FiveTimesFiveHandler struct{}
+type FiveTimesFiveHandler struct {
+	TemplatePath string
+}
 
-func NewFiveTimesFiveHandler() *FiveTimesFiveHandler {
-	return &FiveTimesFiveHandler{}
+func NewFiveTimesFiveHandler(path string) *FiveTimesFiveHandler {
+	return &FiveTimesFiveHandler{
+		TemplatePath: path,
+	}
 }
 
 // ゆくゆくは、メニュータイプも受け取って、このAPIだけで複数のメニューを返すようにしたい。
@@ -41,11 +45,12 @@ func NewFiveTimesFiveHandler() *FiveTimesFiveHandler {
 func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	var req RequestBody
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Println("デコードエラー:", err)
 		http.Error(w, "FiveTimesFiveHandler: Invalid input", http.StatusBadRequest)
 		return
 	}
 
-	data, err := os.ReadFile("data/5x5.json")
+	data, err := os.ReadFile(h.TemplatePath)
 	if err != nil {
 		http.Error(w, "FiveTimesFiveHandler: Template not found", http.StatusInternalServerError)
 		return

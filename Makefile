@@ -8,5 +8,5 @@ fmt:
 	@echo "✅ Code formatted with goimports!"
 test:
 	@echo "🧪 Running go tests..."
-	go test -p 6 -race -cover ./...
+	go test -v -p 6 -race -cover ./...
 	@echo "✅ Tests passed!"
