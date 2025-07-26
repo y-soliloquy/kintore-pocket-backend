@@ -35,7 +35,7 @@ type TrainingMenuHandler struct {
 	BasePath string
 }
 
-func NewFiveTimesFiveHandler(path string) *TrainingMenuHandler {
+func NewTrainingMenuHandler(path string) *TrainingMenuHandler {
 	return &TrainingMenuHandler{
 		BasePath: path,
 	}
