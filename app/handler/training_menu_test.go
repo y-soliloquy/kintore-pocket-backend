@@ -63,7 +63,7 @@ func TestTrainingMenuHandler_Handle(t *testing.T) {
 
 			reqBody := map[string]int{"weight": 100}
 			body, _ := json.Marshal(reqBody)
-			req := httptest.NewRequest(http.MethodPost, "/5times5?template="+tt.filename, bytes.NewReader(body))
+			req := httptest.NewRequest(http.MethodPost, "/training_menu?template="+tt.filename, bytes.NewReader(body))
 			req.Header.Set("Content-Type", "application/json")
 			rr := httptest.NewRecorder()
 
