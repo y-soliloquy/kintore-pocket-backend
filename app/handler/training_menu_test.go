@@ -31,7 +31,7 @@ func TestTrainingMenuHandler_Handle(t *testing.T) {
 				{ "set": 5, "percent": 0.75, "reps": 5 }
 			]`,
 			wantLength: 5,
-			wantWeight: 75,
+			wantWeight: 75, // 100 * 0.75 = 75
 		},
 		{
 			name:     "piramid",
@@ -45,6 +45,19 @@ func TestTrainingMenuHandler_Handle(t *testing.T) {
 			]`,
 			wantLength: 5,
 			wantWeight: 60, // 100 * 0.60 = 60
+		},
+		{
+			name:     "asceding",
+			filename: "test_ascending.json",
+			jsonTemplate: `[
+				{ "set": 1, "percent": 0.50, "reps": 12 },
+				{ "set": 2, "percent": 0.60, "reps": 10 },
+				{ "set": 3, "percent": 0.70, "reps": 8 },
+				{ "set": 4, "percent": 0.80, "reps": 6 },
+				{ "set": 5, "percent": 0.85, "reps": 4 }
+			]`,
+			wantLength: 5,
+			wantWeight: 50, // 100 * 0.50 = 50
 		},
 	}
 
@@ -61,6 +74,7 @@ func TestTrainingMenuHandler_Handle(t *testing.T) {
 				t.Fatalf("failed to write test json: %v", err)
 			}
 
+			// キリがいいため100kgの入力があった前提としている
 			reqBody := map[string]int{"weight": 100}
 			body, _ := json.Marshal(reqBody)
 			req := httptest.NewRequest(http.MethodPost, "/training_menu?template="+tt.filename, bytes.NewReader(body))
