@@ -12,7 +12,7 @@ import (
 	"github.com/y-soliloquy/kintore-pocket-backend/app/handler"
 )
 
-func TestFiveTimesFiveHandler_Handle(t *testing.T) {
+func TestTrainingMenuHandler_Handle(t *testing.T) {
 	tests := []struct {
 		name         string
 		filename     string
@@ -67,7 +67,7 @@ func TestFiveTimesFiveHandler_Handle(t *testing.T) {
 			req.Header.Set("Content-Type", "application/json")
 			rr := httptest.NewRecorder()
 
-			handler := handler.NewFiveTimesFiveHandler(dir)
+			handler := handler.NewTrainingMenuHandler(dir)
 			handler.Handle(rr, req)
 
 			if rr.Code != http.StatusOK {
