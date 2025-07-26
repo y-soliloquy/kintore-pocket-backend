@@ -15,13 +15,13 @@ import (
 // 一般的な最小のプレートの重さは1.25kgです。
 const MinPlateWeight float64 = 2.5
 
-type FiveTimesFiveTemplate struct {
+type TrainingTemplate struct {
 	Set     int     `json:"set"`
 	Percent float64 `json:"percent"`
 	Reps    int     `json:"reps"`
 }
 
-type FiveTimesFiveMenu struct {
+type TrainingMenu struct {
 	Set    int     `json:"set"`
 	Weight float64 `json:"weight"`
 	Reps   int     `json:"reps"`
@@ -31,23 +31,23 @@ type RequestBody struct {
 	Weight int `json:"weight"`
 }
 
-type FiveTimesFiveHandler struct {
+type TrainingMenuHandler struct {
 	BasePath string
 }
 
-func NewFiveTimesFiveHandler(path string) *FiveTimesFiveHandler {
-	return &FiveTimesFiveHandler{
+func NewTrainingMenuHandler(path string) *TrainingMenuHandler {
+	return &TrainingMenuHandler{
 		BasePath: path,
 	}
 }
 
 // ゆくゆくは、メニュータイプも受け取って、このAPIだけで複数のメニューを返すようにしたい。
 // その際は名前を汎用的なものに変更する
-func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
+func (h *TrainingMenuHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	var req RequestBody
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Printf("failed to decode request: %v", err)
-		http.Error(w, "FiveTimesFiveHandler: Invalid input", http.StatusBadRequest)
+		http.Error(w, "TrainingMenuHandler: Invalid input", http.StatusBadRequest)
 		return
 	}
 
@@ -65,17 +65,17 @@ func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var template []FiveTimesFiveTemplate
+	var template []TrainingTemplate
 	if err := json.Unmarshal(data, &template); err != nil {
 		log.Printf("failed to parse: %v", err)
-		http.Error(w, "FiveTimesFiveHandler: Invalid template", http.StatusInternalServerError)
+		http.Error(w, "TrainingMenuHandler: Invalid template", http.StatusInternalServerError)
 		return
 	}
 
-	var menus []FiveTimesFiveMenu
+	var menus []TrainingMenu
 	for _, t := range template {
 		weight := CalculateWeight(float64(req.Weight) * t.Percent)
-		menus = append(menus, FiveTimesFiveMenu{
+		menus = append(menus, TrainingMenu{
 			Set:    t.Set,
 			Weight: weight,
 			Reps:   t.Reps,
@@ -86,7 +86,7 @@ func (h *FiveTimesFiveHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	if err := json.NewEncoder(w).Encode(menus); err != nil {
-		log.Printf("FiveTimesFiveHandler: failed to encode JSON: %v", err)
+		log.Printf("TrainingMenuHandler: failed to encode JSON: %v", err)
 	}
 }
 
