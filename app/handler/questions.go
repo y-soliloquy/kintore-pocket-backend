@@ -27,7 +27,7 @@ func NewQuestionsHandler() *QuestionsHandler {
 	return &QuestionsHandler{}
 }
 
-func (h *QuestionsHandler) Handle(w http.ResponseWriter, r *http.Response) {
+func (h *QuestionsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	questions, err := LoadQuestions("../data/questions.json")
 	if err != nil {
