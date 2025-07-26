@@ -29,10 +29,12 @@ func NewQuestionsHandler() *QuestionsHandler {
 
 func (h *QuestionsHandler) Handle(w http.ResponseWriter, r *http.Response) {
 	w.WriteHeader(http.StatusOK)
-	_, err := w.Write([]byte("questions"))
+	questions, err := LoadQuestions("../data/questions.json")
 	if err != nil {
-		log.Printf("QuestionsHandler: failed to write response: %v", err)
+		http.Error(w, "failed to load questions", http.StatusInternalServerError)
 	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(questions)
 }
 
 func LoadQuestions(path string) ([]Question, error) {
