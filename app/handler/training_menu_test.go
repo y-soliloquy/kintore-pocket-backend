@@ -59,6 +59,18 @@ func TestTrainingMenuHandler_Handle(t *testing.T) {
 			wantLength: 5,
 			wantWeight: 50, // 100 * 0.50 = 50
 		},
+		{
+			name:     "desceding",
+			filename: "test_descending.json",
+			jsonTemplate: `[
+				{ "set": 1, "percent": 0.80, "reps": 10 },
+				{ "set": 2, "percent": 0.80, "reps": 8 },
+				{ "set": 3, "percent": 0.80, "reps": 6 },
+				{ "set": 4, "percent": 0.50, "reps": 100 }
+			]`,
+			wantLength: 4,
+			wantWeight: 80, // 100 * 0.80 = 50
+		},
 	}
 
 	dir := "testdata"
