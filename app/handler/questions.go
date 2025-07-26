@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 type Option struct {
@@ -21,15 +22,18 @@ type Question struct {
 type QuestionsHandler struct {
 	// dbやconfigを入れて拡張できるようにして多く
 	// db *sql.DB
+	Path string
 }
 
-func NewQuestionsHandler() *QuestionsHandler {
-	return &QuestionsHandler{}
+func NewQuestionsHandler(path string) *QuestionsHandler {
+	return &QuestionsHandler{
+		Path: path,
+	}
 }
 
 func (h *QuestionsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	questions, err := LoadQuestions("data/questions.json")
+	questions, err := LoadQuestions(filepath.Join(h.Path, "questions.json"))
 	if err != nil {
 		http.Error(w, "failed to load questions", http.StatusInternalServerError)
 	}
