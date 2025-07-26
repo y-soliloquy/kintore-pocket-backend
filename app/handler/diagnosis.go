@@ -6,7 +6,12 @@ import (
 	"net/http"
 )
 
+type Answers struct {
+	Answer string
+}
+
 type RequestBodyDiagnosis struct {
+	Answers []string
 }
 
 type DiagnosisHandler struct {
