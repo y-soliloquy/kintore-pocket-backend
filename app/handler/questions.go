@@ -38,7 +38,9 @@ func (h *QuestionsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to load questions", http.StatusInternalServerError)
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(questions)
+	if err := json.NewEncoder(w).Encode(questions); err != nil {
+		log.Printf("QuestionsHandler: failed to encode response: %v", err)
+	}
 }
 
 func LoadQuestions(path string) ([]Question, error) {
