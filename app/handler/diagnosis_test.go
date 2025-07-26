@@ -3,6 +3,7 @@ package handler_test
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,73 +12,111 @@ import (
 )
 
 func TestDiagnosisHandler_Handle(t *testing.T) {
+	h := handler.NewDiagnosisHandler()
+
 	tests := []struct {
 		name          string
-		request       handler.RequestBodyDiagnosis
-		expectedType  string
-		expectedMenus []string
+		answers       []string
+		expectedTypes []string
 	}{
 		{
-			name: "type A wins",
-			request: handler.RequestBodyDiagnosis{
-				Answers: []string{"A", "A", "B", "C"},
-			},
-			expectedType:  "A",
-			expectedMenus: []string{"ピラミッド法", "アセンディング法", "ディセンディング法"},
+			name:          "A only",
+			answers:       []string{"A", "A", "B"},
+			expectedTypes: []string{"A"},
 		},
 		{
-			name: "type C wins",
-			request: handler.RequestBodyDiagnosis{
-				Answers: []string{"C", "C", "A", "B"},
-			},
-			expectedType:  "C",
-			expectedMenus: []string{"有酸素運動"},
+			name:          "A and B tie",
+			answers:       []string{"A", "B", "A", "B"},
+			expectedTypes: []string{"A", "B"},
 		},
 		{
-			name: "type B wins",
-			request: handler.RequestBodyDiagnosis{
-				Answers: []string{"B", "B", "B", "C"},
-			},
-			expectedType:  "B",
-			expectedMenus: []string{"5x5法", "3x3法"},
+			name:          "B and C tie",
+			answers:       []string{"B", "C", "C", "B"},
+			expectedTypes: []string{"B", "C"},
+		},
+		{
+			name:          "A and C tie",
+			answers:       []string{"A", "C", "C", "A"},
+			expectedTypes: []string{"A", "C"},
+		},
+		{
+			name:          "A, B, C tie",
+			answers:       []string{"A", "B", "C"},
+			expectedTypes: []string{"A", "B", "C"},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			body, err := json.Marshal(tt.request)
-			if err != nil {
-				t.Fatalf("failed to marshal request: %v", err)
+			reqBody := handler.RequestBodyDiagnosis{
+				Answers: tt.answers,
 			}
+			body, _ := json.Marshal(reqBody)
 
 			req := httptest.NewRequest(http.MethodPost, "/diagnosis", bytes.NewReader(body))
-			req.Header.Set("Content-Type", "application/json")
-			rr := httptest.NewRecorder()
+			w := httptest.NewRecorder()
 
-			h := handler.NewDiagnosisHandler()
-			h.Handle(rr, req)
+			h.Handle(w, req)
 
-			if rr.Code != http.StatusOK {
-				t.Fatalf("unexpected status code: got %d, want %d", rr.Code, http.StatusOK)
+			res := w.Result()
+			defer res.Body.Close()
+
+			if res.StatusCode != http.StatusOK {
+				t.Errorf("expected status 200 OK, got %d", res.StatusCode)
 			}
 
-			var got handler.ResponseDiagnosis
-			if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
-				t.Fatalf("failed to unmarshal response: %v", err)
+			var response struct {
+				Results []struct {
+					Type string `json:"type"`
+				} `json:"results"`
+			}
+			resBody, _ := io.ReadAll(res.Body)
+			if err := json.Unmarshal(resBody, &response); err != nil {
+				t.Fatalf("failed to decode response: %v", err)
 			}
 
-			if got.Type != tt.expectedType {
-				t.Errorf("unexpected type: got %s, want %s", got.Type, tt.expectedType)
+			// 実際に返ってきたタイプ一覧を取り出し
+			var gotTypes []string
+			for _, r := range response.Results {
+				gotTypes = append(gotTypes, r.Type)
 			}
 
-			if len(got.Recomendations) != len(tt.expectedMenus) {
-				t.Fatalf("unexpected recommendations length: got %d, want %d", len(got.Recomendations), len(tt.expectedMenus))
+			// mapで比較（順不同対応）
+			wantMap := make(map[string]bool)
+			for _, t := range tt.expectedTypes {
+				wantMap[t] = true
 			}
-			for i := range got.Recomendations {
-				if got.Recomendations[i] != tt.expectedMenus[i] {
-					t.Errorf("recommendation[%d]: got %s, want %s", i, got.Recomendations[i], tt.expectedMenus[i])
+			gotMap := make(map[string]bool)
+			for _, t := range gotTypes {
+				gotMap[t] = true
+			}
+
+			if len(wantMap) != len(gotMap) {
+				t.Errorf("expected types %v, got %v", tt.expectedTypes, gotTypes)
+			}
+			for typ := range wantMap {
+				if !gotMap[typ] {
+					t.Errorf("expected type %s not found in response", typ)
 				}
 			}
 		})
+	}
+}
+
+func TestDiagnosisHandler_Handle_InvalidJSON(t *testing.T) {
+	h := handler.NewDiagnosisHandler()
+
+	invalidJSON := []byte(`{ "answers": [1, 2, 3] }`) // 数値は不正（string配列を期待）
+
+	req := httptest.NewRequest(http.MethodPost, "/diagnosis", bytes.NewReader(invalidJSON))
+	w := httptest.NewRecorder()
+
+	h.Handle(w, req)
+
+	res := w.Result()
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected 400 Bad Request, got %d", res.StatusCode)
 	}
 }
