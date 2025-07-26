@@ -29,7 +29,7 @@ func NewQuestionsHandler() *QuestionsHandler {
 
 func (h *QuestionsHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	questions, err := LoadQuestions("../data/questions.json")
+	questions, err := LoadQuestions("data/questions.json")
 	if err != nil {
 		http.Error(w, "failed to load questions", http.StatusInternalServerError)
 	}
