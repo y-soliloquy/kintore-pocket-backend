@@ -30,6 +30,7 @@ func NewRouter() http.Handler {
 		{Method: http.MethodGet, Path: "/goodbye", Handler: handler.NewGoodbyeHandler().Handle},
 		{Method: http.MethodPost, Path: "/training_menu", Handler: handler.NewTrainingMenuHandler("data").Handle},
 		{Method: http.MethodGet, Path: "/questions", Handler: handler.NewQuestionsHandler("data").Handle},
+		{Method: http.MethodPost, Path: "/diagnosis", Handler: handler.NewDiagnosisHandler().Handle},
 	}
 
 	for _, route := range routes {
