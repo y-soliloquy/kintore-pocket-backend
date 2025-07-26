@@ -27,7 +27,7 @@ type TrainingMenu struct {
 	Reps   int     `json:"reps"`
 }
 
-type RequestBody struct {
+type RequestBodyTrainingMenu struct {
 	Weight int `json:"weight"`
 }
 
@@ -44,7 +44,7 @@ func NewTrainingMenuHandler(path string) *TrainingMenuHandler {
 // ゆくゆくは、メニュータイプも受け取って、このAPIだけで複数のメニューを返すようにしたい。
 // その際は名前を汎用的なものに変更する
 func (h *TrainingMenuHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	var req RequestBody
+	var req RequestBodyTrainingMenu
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Printf("failed to decode request: %v", err)
 		http.Error(w, "TrainingMenuHandler: Invalid input", http.StatusBadRequest)
