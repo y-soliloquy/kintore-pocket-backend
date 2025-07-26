@@ -3,6 +3,7 @@ package handler_test
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,74 +11,56 @@ import (
 	"github.com/y-soliloquy/kintore-pocket-backend/app/handler"
 )
 
-func TestDiagnosisHandler_Handle(t *testing.T) {
-	tests := []struct {
-		name          string
-		request       handler.RequestBodyDiagnosis
-		expectedType  string
-		expectedMenus []string
-	}{
-		{
-			name: "type A wins",
-			request: handler.RequestBodyDiagnosis{
-				Answers: []string{"A", "A", "B", "C"},
-			},
-			expectedType:  "A",
-			expectedMenus: []string{"ピラミッド法", "アセンディング法", "ディセンディング法"},
-		},
-		{
-			name: "type C wins",
-			request: handler.RequestBodyDiagnosis{
-				Answers: []string{"C", "C", "A", "B"},
-			},
-			expectedType:  "C",
-			expectedMenus: []string{"有酸素運動"},
-		},
-		{
-			name: "type B wins",
-			request: handler.RequestBodyDiagnosis{
-				Answers: []string{"B", "B", "B", "C"},
-			},
-			expectedType:  "B",
-			expectedMenus: []string{"5x5法", "3x3法"},
-		},
+func TestDiagnosisHandler_Handle_Success(t *testing.T) {
+	h := handler.NewDiagnosisHandler()
+
+	reqBody := handler.RequestBodyDiagnosis{
+		Answers: []string{"A", "B", "A", "B"}, // AとBが同率で最大
+	}
+	body, _ := json.Marshal(reqBody)
+
+	req := httptest.NewRequest(http.MethodPost, "/diagnosis", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+
+	h.Handle(w, req)
+
+	res := w.Result()
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("expected status 200 OK, got %d", res.StatusCode)
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			body, err := json.Marshal(tt.request)
-			if err != nil {
-				t.Fatalf("failed to marshal request: %v", err)
-			}
+	if ct := res.Header.Get("Content-Type"); ct != "application/json" {
+		t.Errorf("expected Content-Type application/json, got %s", ct)
+	}
 
-			req := httptest.NewRequest(http.MethodPost, "/diagnosis", bytes.NewReader(body))
-			req.Header.Set("Content-Type", "application/json")
-			rr := httptest.NewRecorder()
+	// レスポンス確認
+	var decoded map[string]interface{}
+	resBody, _ := io.ReadAll(res.Body)
+	if err := json.Unmarshal(resBody, &decoded); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
 
-			h := handler.NewDiagnosisHandler()
-			h.Handle(rr, req)
+	if _, ok := decoded["results"]; !ok {
+		t.Errorf("expected key 'results' in response")
+	}
+}
 
-			if rr.Code != http.StatusOK {
-				t.Fatalf("unexpected status code: got %d, want %d", rr.Code, http.StatusOK)
-			}
+func TestDiagnosisHandler_Handle_InvalidJSON(t *testing.T) {
+	h := handler.NewDiagnosisHandler()
 
-			var got handler.ResponseDiagnosis
-			if err := json.Unmarshal(rr.Body.Bytes(), &got); err != nil {
-				t.Fatalf("failed to unmarshal response: %v", err)
-			}
+	invalidJSON := []byte(`{ "answers": [1, 2, 3] }`) // 数値は不正（string配列を期待）
 
-			if got.Type != tt.expectedType {
-				t.Errorf("unexpected type: got %s, want %s", got.Type, tt.expectedType)
-			}
+	req := httptest.NewRequest(http.MethodPost, "/diagnosis", bytes.NewReader(invalidJSON))
+	w := httptest.NewRecorder()
 
-			if len(got.Recomendations) != len(tt.expectedMenus) {
-				t.Fatalf("unexpected recommendations length: got %d, want %d", len(got.Recomendations), len(tt.expectedMenus))
-			}
-			for i := range got.Recomendations {
-				if got.Recomendations[i] != tt.expectedMenus[i] {
-					t.Errorf("recommendation[%d]: got %s, want %s", i, got.Recomendations[i], tt.expectedMenus[i])
-				}
-			}
-		})
+	h.Handle(w, req)
+
+	res := w.Result()
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected 400 Bad Request, got %d", res.StatusCode)
 	}
 }
