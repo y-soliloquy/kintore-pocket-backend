@@ -69,7 +69,18 @@ func TestTrainingMenuHandler_Handle(t *testing.T) {
 				{ "set": 4, "percent": 0.50, "reps": 100 }
 			]`,
 			wantLength: 4,
-			wantWeight: 80, // 100 * 0.80 = 50
+			wantWeight: 80, // 100 * 0.80 = 80
+		},
+		{
+			name:     "3x3",
+			filename: "test_3x3.json",
+			jsonTemplate: `[
+				{ "set": 1, "percent": 0.85, "reps": 3 },
+				{ "set": 2, "percent": 0.85, "reps": 3 },
+				{ "set": 3, "percent": 0.85, "reps": 3 }
+			]`,
+			wantLength: 5,
+			wantWeight: 75, // 100 * 0.85 = 85
 		},
 	}
 
