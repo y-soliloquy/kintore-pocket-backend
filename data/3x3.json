@@ -1,6 +1,6 @@
 [
-    { "set": 1, "percent": 0.85, "reps": 85 },
-    { "set": 2, "percent": 0.85, "reps": 85 },
-    { "set": 3, "percent": 0.85, "reps": 85 }
+    { "set": 1, "percent": 0.85, "reps": 3 },
+    { "set": 2, "percent": 0.85, "reps": 3 },
+    { "set": 3, "percent": 0.85, "reps": 3 }
   ]
   
