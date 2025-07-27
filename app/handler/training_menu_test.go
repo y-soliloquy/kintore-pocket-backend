@@ -79,8 +79,8 @@ func TestTrainingMenuHandler_Handle(t *testing.T) {
 				{ "set": 2, "percent": 0.85, "reps": 3 },
 				{ "set": 3, "percent": 0.85, "reps": 3 }
 			]`,
-			wantLength: 5,
-			wantWeight: 75, // 100 * 0.85 = 85
+			wantLength: 3,
+			wantWeight: 85, // 100 * 0.85 = 85
 		},
 	}
 
