@@ -2,11 +2,11 @@ name: encourage-developers
 
 permissions:
   contents: read
-  pull_requests: write
+  pull-requests: write
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened,synchronize]
 
 jobs:
   encourage-developers:
