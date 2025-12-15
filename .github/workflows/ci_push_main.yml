@@ -1,5 +1,9 @@
 name: Promote to Main
 
+permissions:
+  contents: write
+  pull-requests: write
+
 on:
   push:
     branches:
@@ -29,4 +33,4 @@ jobs:
               --body "CI passed on development. This PR was auto-generated."
           fi
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
