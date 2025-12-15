@@ -2,7 +2,7 @@ name: Promote to Main
 
 permissions:
   contents: write
-  pull-request: write
+  pull-requests: write
 
 on:
   push:
