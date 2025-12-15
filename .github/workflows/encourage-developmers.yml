@@ -6,23 +6,23 @@ permissions:
 
 on:
   pull_request:
-    types: [open]
+    types: [opened, synchronize]
 
 jobs:
   encourage-developers:
-  runs-on: ubuntu-latest
-  steps:
-    - name: Create Comments
-      uses: actions/github-script@v8
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const prNumber = context.issue.number;
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Comments
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.issue.number;
 
-          await github.rest.issues.createComment({
-            issue_number: prNumber,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: 'いい調子！🎉引き続き開発していこう！🚀'
-          })
+            await github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'いい調子！🎉引き続き開発していこう！🚀'
+            })
       
