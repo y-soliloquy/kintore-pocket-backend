@@ -8,8 +8,9 @@ import (
 	"path/filepath"
 )
 
-type MovieURL struct {
-	URL string `json:"url"`
+type MovieInfos struct {
+	URL   string `json:"url"`
+	TiTle string `json:"title"`
 }
 
 // 使うかわからないが拡張できるようにしておく
@@ -31,8 +32,8 @@ func (h *ReferenceHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var urls []MovieURL
-	if err := json.Unmarshal(b, &urls); err != nil {
+	var infos []MovieInfos
+	if err := json.Unmarshal(b, &infos); err != nil {
 		log.Printf("ReferenceHandler: failed to parse json: %v", err)
 		http.Error(w, "invalid reference json", http.StatusInternalServerError)
 		return
@@ -40,7 +41,7 @@ func (h *ReferenceHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(urls); err != nil {
+	if err := json.NewEncoder(w).Encode(infos); err != nil {
 		log.Printf("ReferenceHandler: failed to write response: %v", err)
 	}
 }
