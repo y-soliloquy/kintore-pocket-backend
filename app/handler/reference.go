@@ -10,7 +10,7 @@ import (
 
 type MovieInfos struct {
 	URL   string `json:"url"`
-	TiTle string `json:"title"`
+	Title string `json:"title"`
 }
 
 // 使うかわからないが拡張できるようにしておく
