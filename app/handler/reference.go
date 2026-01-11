@@ -22,7 +22,7 @@ func NewReferenceHandler(path string) *ReferenceHandler {
 }
 
 func (h *ReferenceHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	path := filepath.Join(h.baseDir, "reference.json")
+	path := filepath.Join(h.baseDir, "movies.json")
 
 	b, err := os.ReadFile(path)
 	if err != nil {
