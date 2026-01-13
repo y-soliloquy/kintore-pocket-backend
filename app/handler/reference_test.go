@@ -25,7 +25,8 @@ func TestReferenceHandler(t *testing.T) {
 				t.Helper()
 				jsonBody := `[
 					{ "url": "https://example.com/bench", "title": "ベンチプレス解説" },
-					{ "url": "https://example.com/deadlift", "title": "デッドリフト解説" }
+					{ "url": "https://example.com/deadlift", "title": "デッドリフト解説" },
+					{ "url": "https://example.com/squat", "title": "スクワット解説" }
 				]`
 				path := filepath.Join(dir, "movies.json")
 				if err := os.WriteFile(path, []byte(jsonBody), 0644); err != nil {
@@ -33,8 +34,8 @@ func TestReferenceHandler(t *testing.T) {
 				}
 			},
 			wantStatus: http.StatusOK,
-			wantLen:    2,
-			wantTitles: []string{"ベンチプレス解説", "デッドリフト解説"},
+			wantLen:    3,
+			wantTitles: []string{"ベンチプレス解説", "デッドリフト解説", "スクワット解説"},
 		},
 		{
 			name: "failure: movies.jsonが存在せず500エラー",
