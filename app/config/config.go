@@ -11,7 +11,7 @@ type DBConfig struct {
 
 func LoadDBConfig() *DBConfig {
 	dbURL := os.Getenv("DATABASE_URL")
-	if dbURL != "" {
+	if dbURL == "" {
 		log.Fatal("DATABASE_URL is required")
 	}
 
